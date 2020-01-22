@@ -69,11 +69,17 @@ class PdfPrinter {
 		}
 
 		let pages = builder.layoutDocument(docDefinition.content, this.pdfKitDoc, docDefinition.styles || {}, docDefinition.defaultStyle || { fontSize: 12, font: 'Roboto' }, docDefinition.background, docDefinition.header, docDefinition.footer, docDefinition.watermark, docDefinition.pageBreakBefore);
-		let maxNumberPages = docDefinition.maxPagesNumber || -1;
-		if (isNumber(maxNumberPages) && maxNumberPages > -1) {
-			pages = pages.slice(0, maxNumberPages);
-		}
+		
+		let pageRange = {
+			start: docDefinition.start,
+			end: docDefinition.end
+		};
 
+		if (pageRange.end - (pageRange.start || 0) > docDefinition.maxPagesNumber)
+			pageRange.end = pageRange.end - (pageRange.start || 0) - docDefinition.maxPagesNumber;
+		
+		pages = pages.slice(pageRange.start, pageRange.end);
+		
 		// if pageSize.height is set to Infinity, calculate the actual height of the page that
 		// was laid out using the height of each of the items in the page.
 		if (pageSize.height === Infinity) {
